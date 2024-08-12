@@ -1,14 +1,21 @@
 package com.emre.blog.dto;
 
-import com.emre.blog.model.Author;
+
 import lombok.Builder;
 
 import java.time.LocalDateTime;
+import java.util.Set;
+
 @Builder
 public record ArticleDto(
+    Long id,
     String title,
     String content,
-    Author author,
-    LocalDateTime creationDate
+    String authorId,
+    LocalDateTime creationDate,
+    LocalDateTime updateDate,
+    Set<CommentDto> comments
 ) {
+
+
 }

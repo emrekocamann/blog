@@ -1,10 +1,11 @@
 package com.emre.blog.service;
 
+
 import com.emre.blog.dto.AuthorDto;
+import com.emre.blog.dto.AuthorDtoConverter;
 import com.emre.blog.dto.CreateUserRequest;
 import com.emre.blog.model.Author;
 import com.emre.blog.repository.AuthorRepository;
-import org.modelmapper.ModelMapper;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -15,12 +16,14 @@ import org.springframework.stereotype.Service;
 public class AuthorService implements UserDetailsService {
     private final AuthorRepository authorRepository;
     private final BCryptPasswordEncoder passwordEncoder;
-    private final ModelMapper modelMapper;
+    private final AuthorDtoConverter authorDtoConverter;
 
-    public AuthorService(AuthorRepository authorRepository, BCryptPasswordEncoder passwordEncoder, ModelMapper modelMapper) {
+    public AuthorService(AuthorRepository authorRepository,
+                         BCryptPasswordEncoder passwordEncoder,
+                         AuthorDtoConverter authorDtoConverter) {
         this.authorRepository = authorRepository;
         this.passwordEncoder = passwordEncoder;
-        this.modelMapper = modelMapper;
+        this.authorDtoConverter = authorDtoConverter;
     }
 
 
@@ -38,8 +41,8 @@ public class AuthorService implements UserDetailsService {
 
 
 
-    public Author createAuthor(CreateUserRequest request) {
-        Author user = Author.builder()
+    public AuthorDto save(CreateUserRequest request) {
+        Author author = Author.builder()
                 .name(request.name())
                 .username(request.username())
                 .password(passwordEncoder.encode(request.password()))
@@ -49,7 +52,8 @@ public class AuthorService implements UserDetailsService {
                 .accountNonExpired(true)
                 .accountNonLocked(true)
                 .build();
-        return authorRepository.save(user);
+        authorRepository.save(author);
+        return authorDtoConverter.convert(author);
     }
 
 

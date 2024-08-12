@@ -1,15 +1,12 @@
 package com.emre.blog.dto;
 
-import lombok.*;
+import lombok.Builder;
 
-@Data
+@Builder
+public record AuthorDto(
+        String id,
+        String name,
+        String username
+) {
 
-@AllArgsConstructor
-@RequiredArgsConstructor
-@Getter
-@Setter
-public class AuthorDto{
-    private String id;
-    private String name;
-    private String username;
 }

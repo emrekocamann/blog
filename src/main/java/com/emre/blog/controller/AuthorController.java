@@ -1,8 +1,8 @@
 package com.emre.blog.controller;
 
 import com.emre.blog.dto.AuthRequest;
+import com.emre.blog.dto.AuthorDto;
 import com.emre.blog.dto.CreateUserRequest;
-import com.emre.blog.model.Author;
 import com.emre.blog.service.JwtService;
 import com.emre.blog.service.AuthorService;
 import lombok.extern.slf4j.Slf4j;
@@ -17,22 +17,22 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/v1/user")
 @Slf4j
-public class UserController {
+public class AuthorController {
     private final AuthorService authorService;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
 
-    public UserController(AuthorService authorService, AuthenticationManager authenticationManager, JwtService jwtService) {
+    public AuthorController(AuthorService authorService, AuthenticationManager authenticationManager, JwtService jwtService) {
         this.authorService = authorService;
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
     }
 
     @PostMapping("/register")
-    public ResponseEntity<Author> addUser(@RequestBody CreateUserRequest request) {
-        return ResponseEntity.ok(authorService.createAuthor(request));
+    public ResponseEntity<AuthorDto> addAuthor(@RequestBody CreateUserRequest request) {
+        return ResponseEntity.ok(authorService.save(request));
     }
 
 
