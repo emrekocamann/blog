@@ -1,21 +1,20 @@
 package com.emre.blog.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
 import org.hibernate.annotations.UuidGenerator;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
 @Table(name="author")
 @AllArgsConstructor
-@RequiredArgsConstructor
-@Data
+@NoArgsConstructor
+@Getter
+@Setter
 @Builder
 public class Author implements UserDetails {
     @Id
@@ -40,4 +39,7 @@ public class Author implements UserDetails {
 
     @OneToMany(mappedBy = "author", fetch = FetchType.EAGER,cascade = CascadeType.ALL)
     private Set<Article> articles;
+
+    @OneToMany(mappedBy = "author", fetch = FetchType.EAGER,cascade = CascadeType.ALL)
+    private Set<Comment> comments;
 }

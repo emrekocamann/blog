@@ -2,18 +2,19 @@ package com.emre.blog.model;
 
 import jakarta.persistence.*;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
+import java.util.Set;
 
-@Data
+
 @Entity
 @Table(name = "article")
 @AllArgsConstructor
-@RequiredArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
 @Builder
 public class Article {
 
@@ -37,4 +38,7 @@ public class Article {
     @Column(name = "update_date")
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime updateDate;
+
+    @OneToMany(mappedBy = "article", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private Set<Comment> comments;
 }

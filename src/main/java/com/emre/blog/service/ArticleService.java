@@ -1,12 +1,17 @@
 package com.emre.blog.service;
 
+
+
 import com.emre.blog.dto.ArticleDto;
-import com.emre.blog.dto.AuthorDto;
+import com.emre.blog.dto.ArticleDtoConverter;
 import com.emre.blog.dto.CreateArticleRequest;
+import com.emre.blog.dto.UpdateArticleRequest;
 import com.emre.blog.model.Article;
 import com.emre.blog.model.Author;
 import com.emre.blog.repository.ArticleRepository;
 import org.modelmapper.ModelMapper;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 //import java.time.Clock;
@@ -18,21 +23,30 @@ public class ArticleService {
     private final ArticleRepository articleRepository;
     private final AuthorService authorService;
     private final ModelMapper modelMapper;
+    private final ArticleDtoConverter articleDtoConverter;
   //  private final Clock clock;
 
     public ArticleService(ArticleRepository articleRepository,
                           AuthorService authorService,
-                          ModelMapper modelMapper
-            //,   Clock clock
+                          ModelMapper modelMapper,
+                          @Lazy ArticleDtoConverter articleDtoConverter
+                          //,   Clock clock
     ) {
         this.articleRepository = articleRepository;
         this.authorService = authorService;
         this.modelMapper = modelMapper;
 //        this.clock = clock;
+        this.articleDtoConverter = articleDtoConverter;
+    }
+
+    public ArticleDto getArticleById(Long articleId) {
+        Article article=articleRepository.findById(articleId).orElseThrow();
+        return articleDtoConverter.convert(article);
     }
 
 
-    public Article save(CreateArticleRequest request){
+
+    public ArticleDto save(CreateArticleRequest request){
        Author author=authorService.findAuthorById(request.authorId());
 
        Article article = Article.builder()
@@ -42,24 +56,41 @@ public class ArticleService {
                .creationDate(LocalDateTime.now())
                .build();
        articleRepository.save(article);
-       return article;
+       return articleDtoConverter.convert(article);
     }
 
 
-    public ArticleDto update(Long id, CreateArticleRequest request){
+    public ArticleDto update(Long id, UpdateArticleRequest request){
         Article article = articleRepository.findById(id).orElseThrow();
+
+        checkPermission(article);
+
         article.setTitle(request.title());
         article.setContent(request.content());
-        article.setCreationDate(LocalDateTime.now());
+        article.setUpdateDate(LocalDateTime.now());
         articleRepository.save(article);
-        return modelMapper.map(article, ArticleDto.class);
+
+        return articleDtoConverter.convert(article);
     }
+
 
 
     public void delete(Long id){
         Article article = articleRepository.findById(id).orElseThrow();
+        checkPermission(article);
         articleRepository.delete(article);
     }
+
+
+    private  void checkPermission(Article article){
+        if (!article.getAuthor().getUsername().equals(SecurityContextHolder.getContext().getAuthentication().getName())
+                && SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
+                .noneMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"))){
+
+            throw new RuntimeException("You do not have permission to delete this article.");
+        }
+    }
+
 
 //    private LocalDateTime getLocalDateTimeNow() {
 //        Instant instant = clock.instant();

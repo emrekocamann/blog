@@ -8,6 +8,7 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.config.annotation.method.configuration.GlobalMethodSecurityConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -18,8 +19,12 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity
-public class SecurityConfig {
+@EnableMethodSecurity(
+        prePostEnabled = true,
+        securedEnabled = true,
+        jsr250Enabled = true)
+
+public class SecurityConfig  {
 
     private final JwtAuthFilter jwtAuthFilter;
     private final AuthorService authorService;
@@ -36,8 +41,9 @@ public class SecurityConfig {
         return   http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(x->x
-                        .requestMatchers("/user/login/**","/user/register/**").permitAll()
-                        .requestMatchers("/article/**").hasRole("ADMIN")
+                        .requestMatchers("/v1/user/**","/v1/article/**").permitAll()
+                        .requestMatchers("/v1/article/comment/**").permitAll()
+                       // .requestMatchers("/article/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 ).sessionManagement(x->x.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
