@@ -1,11 +1,11 @@
 package com.emre.blog.service;
 
-
-
 import com.emre.blog.dto.ArticleDto;
 import com.emre.blog.dto.ArticleDtoConverter;
 import com.emre.blog.dto.CreateArticleRequest;
 import com.emre.blog.dto.UpdateArticleRequest;
+import com.emre.blog.exception.ArticleAlreadyExistsException;
+import com.emre.blog.exception.ArticleNotFountException;
 import com.emre.blog.model.Article;
 import com.emre.blog.model.Author;
 import com.emre.blog.repository.ArticleRepository;
@@ -17,6 +17,9 @@ import org.springframework.stereotype.Service;
 //import java.time.Clock;
 //import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class ArticleService {
@@ -39,15 +42,49 @@ public class ArticleService {
         this.articleDtoConverter = articleDtoConverter;
     }
 
-    public ArticleDto getArticleById(Long articleId) {
-        Article article=articleRepository.findById(articleId).orElseThrow();
+    public ArticleDto getArticleDtoById(Long articleId) {
+        Article article=articleRepository.findById(articleId).orElseThrow(
+                () -> new ArticleNotFountException("Article not found by id: "+articleId));
         return articleDtoConverter.convert(article);
     }
 
+    public Set<ArticleDto> getArticleDtoByTitle(String title){
+        Set<Article> articles = getArticleByTitle(title);
+
+        if(articles==null){
+            throw new ArticleNotFountException("Article not found by title: "+title);
+        }
+        return articles.stream().map(articleDtoConverter::convert).collect(Collectors.toSet());
+    }
+
+    public Set<ArticleDto> getArticlesDtoByAuthorName(String authorName){
+        Set<Article>  articles = articleRepository.findByAuthorName(authorName).orElse(null);
+
+        if(articles==null){
+            throw new ArticleNotFountException("Article not found by author name: "+authorName);
+        }
+
+        return articles.stream().map(articleDtoConverter::convert).collect(Collectors.toSet());
+    }
+
+
+    public Set<ArticleDto> getArticlesByDateRange(LocalDateTime startDate, LocalDateTime endDate) {
+        Set<Article> articles = articleRepository.findByCreationDateBetween(startDate, endDate).orElse(null);
+
+        if (articles == null) {
+            throw new ArticleNotFountException("Article not found by date range: " + startDate + " - " + endDate);
+        }
+        return articles.stream().map(articleDtoConverter::convert).collect(Collectors.toSet());
+    }
 
 
     public ArticleDto save(CreateArticleRequest request){
        Author author=authorService.findAuthorById(request.authorId());
+       Set<Article> existingArticle= getArticleByTitle(request.title());
+
+       if(existingArticle.size()>0){
+           throw new ArticleAlreadyExistsException("Article already exists");
+       }
 
        Article article = Article.builder()
                .title(request.title())
@@ -61,7 +98,8 @@ public class ArticleService {
 
 
     public ArticleDto update(Long id, UpdateArticleRequest request){
-        Article article = articleRepository.findById(id).orElseThrow();
+        Article article = articleRepository.findById(id).orElseThrow(
+                ()-> new ArticleNotFountException("Article not found by id: "+id));
 
         checkPermission(article);
 
@@ -73,16 +111,25 @@ public class ArticleService {
         return articleDtoConverter.convert(article);
     }
 
-
-
     public void delete(Long id){
-        Article article = articleRepository.findById(id).orElseThrow();
+        Article article = getArticleById(id);
         checkPermission(article);
         articleRepository.delete(article);
     }
 
+    protected Article getArticleById(Long id) {
+        return articleRepository.findById(id).orElseThrow(
+                ()-> new ArticleNotFountException("Article not found by id: "+id));
+    }
 
-    private  void checkPermission(Article article){
+
+    private Set<Article> getArticleByTitle(String title) {
+
+        return articleRepository.findByTitle(title).orElse(null);
+
+    }
+
+    private void checkPermission(Article article){
         if (!article.getAuthor().getUsername().equals(SecurityContextHolder.getContext().getAuthentication().getName())
                 && SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
                 .noneMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"))){
@@ -90,7 +137,6 @@ public class ArticleService {
             throw new RuntimeException("You do not have permission to delete this article.");
         }
     }
-
 
 //    private LocalDateTime getLocalDateTimeNow() {
 //        Instant instant = clock.instant();

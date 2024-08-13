@@ -37,6 +37,7 @@ public class JwtService {
                 .signWith(getSignKey(),SignatureAlgorithm.HS256)
                 .compact();
     }
+
     private Key getSignKey() {
         byte[] keyBytes = Decoders.BASE64.decode(SECRET);
         return Keys.hmacShaKeyFor(keyBytes);
@@ -45,9 +46,8 @@ public class JwtService {
     public boolean validateToken(String token, UserDetails userDetails) {
         String username = extractUsername(token);
         Date expirationDate = getExpirationDate(token);
-        return (username.equals(userDetails.getUsername()) && !expirationDate.before(new Date()));}
-
-
+        return (username.equals(userDetails.getUsername()) && !expirationDate.before(new Date()));
+    }
 
     private Date getExpirationDate(String token) {
         Claims claims= Jwts
@@ -58,6 +58,7 @@ public class JwtService {
                 .getBody();
         return claims.getExpiration();
     }
+
     public String extractUsername(String token) {
         return Jwts
                 .parserBuilder()

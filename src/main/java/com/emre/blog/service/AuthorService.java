@@ -1,6 +1,5 @@
 package com.emre.blog.service;
 
-
 import com.emre.blog.dto.AuthRequest;
 import com.emre.blog.dto.AuthorDto;
 import com.emre.blog.dto.AuthorDtoConverter;
@@ -27,17 +26,9 @@ public class AuthorService implements UserDetailsService {
                          JwtService jwtService,
                          AuthorDtoConverter authorDtoConverter) {
         this.authorRepository = authorRepository;
-   //     this.authenticationManager = authenticationManager;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
         this.authorDtoConverter = authorDtoConverter;
-    }
-
-
-    public Author findAuthorById(String id){
-        return authorRepository.findById(id)
-                .orElseThrow(()->
-                        new UserNotFoundException("User not found"));
     }
 
     @Override
@@ -48,7 +39,12 @@ public class AuthorService implements UserDetailsService {
                         new UserNotFoundException("User not found"));
     }
 
+    public Author findAuthorById(String id){
 
+        return authorRepository.findById(id)
+                .orElseThrow(()->
+                        new UserNotFoundException("User not found"));
+    }
 
     public AuthorDto save(CreateUserRequest request) {
         Author existingAuthor = findAuthorByUsername(request.username());
@@ -69,12 +65,12 @@ public class AuthorService implements UserDetailsService {
         return authorDtoConverter.convert(author);
     }
 
-    public String generateToken( AuthRequest request){
+    public String generateToken(AuthRequest request){
         loadUserByUsername(request.username());
         return jwtService.generateToken(request.username());
     }
 
-    private Author findAuthorByUsername(String username){
+    protected Author findAuthorByUsername(String username){
        return authorRepository.findByUsername(username).orElse(null);
     }
 }

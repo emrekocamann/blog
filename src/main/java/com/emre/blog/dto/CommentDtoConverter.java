@@ -25,6 +25,7 @@ public class CommentDtoConverter {
                 .id(from.getId())
                 .content(from.getContent())
                 .authorId(from.getAuthor().getId())
+                .authorUsername(from.getAuthor().getUsername())
                 .articleId(from.getArticle().getId())
                 .creationDate(from.getCreationDate())
                 .build();
@@ -35,7 +36,7 @@ public class CommentDtoConverter {
                 .id(from.id())
                 .content(from.content())
                 .author(authorService.findAuthorById(from.authorId()))
-                .article(articleDtoConverter.convert(articleService.getArticleById(from.articleId())))
+                .article(articleDtoConverter.convert(articleService.getArticleDtoById(from.articleId())))
                 .creationDate(from.creationDate())
                 .build();
     }
