@@ -42,7 +42,6 @@ public class AuthorService implements UserDetailsService {
     }
 
     public Author findAuthorById(Long id){
-
         return authorRepository.findById(id)
                 .orElseThrow(()->
                         new UserNotFoundException("User not found"));
@@ -111,5 +110,4 @@ public class AuthorService implements UserDetailsService {
             throw new PermissionException("You do not have permission for this action.");
         }
     }
-
 }

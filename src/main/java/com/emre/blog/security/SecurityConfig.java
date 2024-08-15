@@ -46,7 +46,7 @@ public class SecurityConfig  {
                                 "/v1/article/getAll",
                                 "/v1/article/getByAuthorName/**",
                                 "/v1/article/getByDate/**").permitAll()
-                        .requestMatchers("/v1/user/**","/v1/article/**").hasRole("ADMIN")
+                        .requestMatchers("/v1/user/**","/v1/article/**").hasAnyRole("ADMIN","USER")
                         .anyRequest().authenticated()
                 ).sessionManagement(x->x.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
