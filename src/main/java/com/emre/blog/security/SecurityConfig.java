@@ -40,8 +40,13 @@ public class SecurityConfig  {
         return   http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(x->x
-                        .requestMatchers("/v1/user/**","/v1/article/**").permitAll()
-                      //  .requestMatchers("/v1/article/comment/**").permitAll()
+                        .requestMatchers("/v1/user/**",
+                                "/v1/article/getById/**",
+                                "/v1/article/getByTitle/**",
+                                "/v1/article/getAll",
+                                "/v1/article/getByAuthorName/**",
+                                "/v1/article/getByDate/**").permitAll()
+                        .requestMatchers("/v1/user/**","/v1/article/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 ).sessionManagement(x->x.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())

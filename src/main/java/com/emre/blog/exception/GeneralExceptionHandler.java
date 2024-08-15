@@ -25,6 +25,11 @@ public class GeneralExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(ArticleAlreadyExistsException.class)
+    public ResponseEntity<?> articleAlreadyExistsExceptionHandler(ArticleAlreadyExistsException exception)  {
+        return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
     @ExceptionHandler(CommentNotFoundException.class)
     public ResponseEntity<?> commentNotFoundExceptionHandler(CommentNotFoundException exception)  {
         return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);

@@ -33,7 +33,7 @@ public class CommentService {
     public CommentDto save(CommentRequest request) {
         Article article = articleService.getArticleById(request.articleId());
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        Author author = authorService.findAuthorByUsername(username);
+        Author author = (Author) authorService.loadUserByUsername(username);
 
         Comment comment = Comment.builder()
                 .content(request.content())
@@ -61,7 +61,7 @@ public class CommentService {
                 && SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
                 .noneMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"))) {
 
-            throw new PermissionException("You do not have permission to delete this comment.");
+            throw new PermissionException("You do not have permission for this action.");
 
         }
     }

@@ -4,7 +4,7 @@ import lombok.Builder;
 
 @Builder
 public record AuthorDto(
-        String id,
+        Long id,
         String name,
         String username
 ) {

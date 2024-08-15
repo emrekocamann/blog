@@ -18,9 +18,8 @@ import java.util.Set;
 @Builder
 public class Author implements UserDetails {
     @Id
-    @GeneratedValue(generator = "UUID")
-    @UuidGenerator
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     private String name;
     private String username;
     private String password;
@@ -37,9 +36,9 @@ public class Author implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Set<Role> authorities;
 
-    @OneToMany(mappedBy = "author", fetch = FetchType.EAGER,cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "author", fetch = FetchType.LAZY,cascade = CascadeType.REMOVE)
     private Set<Article> articles;
 
-    @OneToMany(mappedBy = "author", fetch = FetchType.EAGER,cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "author", fetch = FetchType.LAZY,cascade = CascadeType.REMOVE)
     private Set<Comment> comments;
 }

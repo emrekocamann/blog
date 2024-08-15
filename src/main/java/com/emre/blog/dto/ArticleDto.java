@@ -11,7 +11,7 @@ public record ArticleDto(
     Long id,
     String title,
     String content,
-    String authorId,
+    Long authorId,
     LocalDateTime creationDate,
     LocalDateTime updateDate,
     Set<CommentDto> comments

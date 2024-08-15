@@ -8,6 +8,7 @@ import com.emre.blog.service.ArticleService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -43,10 +44,27 @@ public class ArticleController {
         return ResponseEntity.ok(articleService.getArticleDtoByTitle(title));
     }
 
+//    @GetMapping("/getAll")
+//    @Operation(summary = "Get all articles",description = "Get all articles")
+//    public ResponseEntity<Set<ArticleDto>> getAllArticles() {
+//       return ResponseEntity.ok(articleService.getAllArticlesDto());
+//    }
+//
+
+    @GetMapping("/getAll")
+    @Operation(summary = "Get all articles",description = "Get all articles")
+    public ResponseEntity<Set<ArticleDto>> getAllArticles(@RequestParam("page") int page, @RequestParam("size") int size) {
+        return ResponseEntity.ok(articleService.getAllArticlesDto(page,size));
+    }
 
     @GetMapping("/getByDate")
     @Operation(summary = "Get articles by date",description = "Get articles by date")
-    public ResponseEntity<Set<ArticleDto>> getArticleByDate(@RequestParam("startDate") LocalDateTime startDate, @RequestParam("endDate") LocalDateTime endDate) {
+    public ResponseEntity<Set<ArticleDto>> getArticleByDate(@RequestParam("startDate")
+                                                                @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSS")
+                                                                LocalDateTime startDate,
+                                                            @RequestParam("endDate")
+                                                                @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSS")
+                                                                LocalDateTime endDate) {
         return ResponseEntity.ok(articleService.getArticlesByDateRange(startDate, endDate));
     }
 

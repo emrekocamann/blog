@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 public record CommentDto(
         Long id,
         String content,
-        String authorId,
+        Long authorId,
         String authorUsername,
         Long articleId,
         LocalDateTime creationDate
